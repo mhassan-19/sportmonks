@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matchday – Live Football</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e6ecee;--panel:#fff;--ink:#12221a;--mute:#5f6f68;--line:#d3dcdf;--pitch:#1d6b46;--live:#d9302b;--yel:#f2c200;
+--display:"Barlow Condensed","Arial Narrow",sans-serif;--body:"Barlow",system-ui,sans-serif}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1714;--panel:#18231e;--ink:#e8f0eb;--mute:#93a69b;--line:#27362f;--pitch:#4fb882}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 var(--body)}
+header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+h1{font:700 28px var(--display);margin:0;letter-spacing:.5px;color:var(--pitch)}
+.ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,select,input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+button{cursor:pointer}button[aria-pressed=true]{background:var(--pitch);border-color:var(--pitch);color:#fff}
+:focus-visible{outline:2px solid var(--pitch);outline-offset:2px}
+.spacer{flex:1}.tick{color:var(--mute);font-size:14px}
+main{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:16px;padding:16px 20px;max-width:1100px;margin:auto}
+@media(max-width:760px){main{grid-template-columns:1fr}}
+.league{font:600 15px var(--display);letter-spacing:.8px;color:var(--mute);margin:14px 0 6px}
+.match{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.match[aria-current=true]{border-color:var(--pitch);box-shadow:inset 3px 0 0 var(--pitch)}
+.stat{font:600 15px var(--display);color:var(--mute)}
+.stat.live{color:var(--live)}
+.stat.live::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--live);margin-right:5px;animation:p 1.4s infinite}
+@keyframes p{50%{opacity:.25}}@media(prefers-reduced-motion:reduce){.stat.live::before{animation:none}}
+.teams div{display:flex;justify-content:space-between;gap:8px;font-weight:500}
+.sc{font:700 20px var(--display);min-width:18px;text-align:right}
+.detail{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;min-height:300px}
+.hero{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;text-align:center}
+.hero .t{font:600 26px var(--display)}
+.hero .big{font:700 64px/1 var(--display)}
+.hero .meta{font:600 18px var(--display);color:var(--mute)}
+.hero .meta.live{color:var(--live)}
+.tl{margin-top:22px;border-top:1px solid var(--line)}
+.ev{display:grid;grid-template-columns:1fr 56px 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);align-items:center}
+.ev .min{font:600 17px var(--display);text-align:center;color:var(--mute)}
+.ev .h{text-align:right}.ev small{display:block;color:var(--mute)}
+.card{display:inline-block;width:11px;height:15px;border-radius:2px;vertical-align:-2px;margin-right:6px}
+.empty,.err{color:var(--mute);padding:20px 4px}.err{color:var(--live)}
+footer{max-width:1100px;margin:0 auto;padding:0 20px 24px;color:var(--mute);font-size:13px}
+.note{max-width:1100px;margin:10px auto 0;padding:0 20px;color:var(--mute);font-size:14px}
+header input[type=search]{min-width:220px}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.strip{position:relative;height:30px;margin:18px 0 6px;border-bottom:2px solid var(--line)}
+.strip i{position:absolute;bottom:-5px;width:10px;height:10px;border-radius:50%;transform:translateX(-50%)}
+.stats{margin-top:20px}.bar{display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center;margin:6px 0;font-size:14px}
+.bar b{text-align:center;font-weight:500}.bar .lb{grid-column:1/4;text-align:center;color:var(--mute);font-size:13px}
+.bar .tr{display:flex;height:8px;background:var(--line);border-radius:4px;overflow:hidden}.bar .tr span{background:var(--pitch)}.bar .tr span+span{background:var(--mute);margin-left:auto}
+.pitch{position:relative;height:300px;background:var(--pitch);border-radius:8px;margin:12px 0;opacity:.95}
+.pitch::after{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:2px solid rgba(255,255,255,.5)}
+.pl{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;background:#fff;color:#12221a;font:700 13px/28px var(--display);text-align:center;z-index:1}
+.pl.a{background:#12221a;color:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:600px){.two{grid-template-columns:1fr}}
+.two h3{font:600 18px var(--display);margin:8px 0}.two ul{list-style:none;padding:0;margin:0 0 10px}.two li{padding:2px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:6px 4px;text-align:right}th:nth-child(2),td:nth-child(2){text-align:left}
+tr.me{background:color-mix(in srgb,var(--pitch) 15%,transparent);font-weight:600}
+td.z{width:5px;padding:0}.f{display:inline-block;width:16px;height:16px;border-radius:3px;font-size:11px;line-height:16px;text-align:center;color:#fff;margin-left:2px}
+.legend{font-size:13px;color:var(--mute);margin-top:8px}.legend span{display:inline-block;width:10px;height:10px;margin:0 4px 0 10px;border-radius:2px}
+.links{margin-top:16px;font-size:13px}.links a{color:var(--pitch);margin-right:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Matchday</h1>
+  <div class="ctrl" role="group" aria-label="Day">
+    <button id="tLive" aria-pressed="true">Live</button><button id="tToday" aria-pressed="false">Today</button>
+    <input type="date" id="date" aria-label="Match date">
+  </div>
+  <input type="search" id="q" placeholder="Filter teams, leagues, countries" aria-label="Filter matches">
+  <label class="tick"><input type="checkbox" id="eng"> England only</label>
+  <span class="spacer"></span>
+  <span class="tick" id="tick"></span><button id="pause">Pause</button><button id="refresh">Refresh</button>
+</header>
+<div class="note" id="note" aria-live="polite"></div>
+<main>
+  <section id="list" aria-label="Matches"></section>
+  <section class="detail" id="detail"><div class="empty">Select a match to see its page.</div></section>
+</main>
+<footer id="foot"></footer>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const S={mode:"live",sel:null,tab:"match",paused:false,poll:30,left:30,data:[],fx:0,key:true,scope:"OVERALL"};
+const side=(f,l)=>(f.participants||[]).find(p=>p.meta?.location===l)||{};
+const goals=(f,l,d="CURRENT")=>{const s=(f.scores||[]).find(x=>x.description===d&&x.score?.participant===l);return s?s.score.goals:null};
+const dn=f=>f.state?.developer_name||"";
+const isLive=f=>dn(f).startsWith("INPLAY")||dn(f)==="HT";
+function status(f){
+  const st=f.state?.short_name||"";
+  if(isLive(f)){const p=(f.periods||[]).find(p=>p.ticking);
+    if(dn(f)==="HT")return{live:true,text:"HT"};
+    return p?{live:true,sec:p.minutes*60+(p.seconds||0),text:p.minutes+"'"}:{live:true,text:st}}
+  if(st==="NS")return{text:new Date(f.starting_at.replace(" ","T")+"Z").toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})};
+  return{text:st||"–"};
+}
+async function api(u){const r=await fetch(u),j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"HTTP "+r.status);return j}
+const readHash=()=>{const p=new URLSearchParams(location.hash.slice(1));S.sel=+p.get("m")||null;S.tab=p.get("v")||"match"};
+const setHash=()=>{history.replaceState(null,"",`#m=${S.sel}&v=${S.tab}`)};
+
+async function loadList(){
+  const q=new URLSearchParams({mode:S.mode,leagues:$("#eng").checked?"england":"all",date:$("#date").value});
+  try{
+    let j=await api("/api/matches?"+q),pre="";
+    if(S.mode==="live"&&!j.data.length){q.set("mode","today");j=await api("/api/matches?"+q);pre="No live matches, showing today. "}
+    S.data=j.data;S.fx=Date.now();renderList();
+    $("#note").textContent=`${pre}${j.data.length} matches loaded · ${j.calls} API call${j.calls===1?"":"s"}${j.capped?" · page cap reached":""}${j.stale?" · showing last saved data":""} · updated ${new Date().toLocaleTimeString()}`;
+    const r=j.rate_limit;$("#foot").textContent=r?`Calls left this hour (${r.requested_entity||"entity"}): ${r.remaining} · resets in ${Math.round(r.resets_in_seconds/60)} min`:"";
+  }catch(e){$("#list").innerHTML=`<div class="err">Couldn’t load matches: ${esc(e.message)}</div>`}
+}
+function renderList(){
+  const q=$("#q").value.trim().toLowerCase(),g={};
+  S.data.filter(f=>!q||[side(f,"home").name,side(f,"away").name,f.league?.name,f.league?.country?.name].join(" ").toLowerCase().includes(q))
+    .sort((a,b)=>a.starting_at.localeCompare(b.starting_at)).forEach(f=>(g[`${f.league?.country?.name||""} ${f.league?.name||"Other"}`.trim()]||=[]).push(f));
+  $("#list").innerHTML=Object.keys(g).length?Object.entries(g).map(([n,fs])=>`<div class="league">${esc(n)}</div>`+fs.map(f=>{
+    const h=side(f,"home"),a=side(f,"away"),s=status(f);
+    return`<button class="match" data-id="${f.id}" ${f.id===S.sel?'aria-current="true"':""}>
+      <span class="stat ${s.live?"live":""}" ${s.sec!=null?`data-s="${s.sec}"`:""}>${esc(s.text)}</span>
+      <span class="teams"><div>${esc(h.name)}</div><div>${esc(a.name)}</div></span>
+      <span class="teams"><div class="sc">${goals(f,"home")??""}</div><div class="sc">${goals(f,"away")??""}</div></span></button>`}).join("")).join("")
+    :`<div class="empty">No matches found.</div>`;
+  document.querySelectorAll(".match").forEach(b=>b.onclick=()=>{S.sel=+b.dataset.id;S.tab="match";setHash();renderList();loadDetail()});
+}
+
+const TYPE={14:"GOAL",15:"OWNGOAL",16:"PENALTY",17:"MISSED_PENALTY",18:"SUBSTITUTION",19:"YELLOWCARD",20:"REDCARD",21:"YELLOWREDCARD",10:"VAR"};
+function ev(e){const t=(e.type?.developer_name||TYPE[e.type_id]||"").toUpperCase();
+  const c=x=>`<span class="card" style="background:${x}"></span>`;
+  if(t.includes("YELLOWRED"))return{i:c("linear-gradient(135deg,var(--yel) 50%,var(--live) 50%)"),l:"Second yellow",k:1,c:"var(--live)"};
+  if(t.includes("YELLOW"))return{i:c("var(--yel)"),l:"Yellow card",c:"var(--yel)"};
+  if(t.includes("RED"))return{i:c("var(--live)"),l:"Red card",k:1,c:"var(--live)"};
+  if(t.includes("MISSED"))return{i:"✖ ",l:"Penalty missed",k:1,c:"var(--mute)"};
+  if(t.includes("OWN"))return{i:"⚽ ",l:"Own goal",k:1,c:"var(--pitch)"};
+  if(t.includes("PENALTY"))return{i:"⚽ ",l:"Penalty goal",k:1,c:"var(--pitch)"};
+  if(t.includes("GOAL"))return{i:"⚽ ",l:"Goal",k:1,c:"var(--pitch)"};
+  if(t.includes("SUB"))return{i:"⇄ ",l:"Substitution",c:"var(--mute)"};
+  if(t.includes("VAR"))return{i:"📺 ",l:"VAR check",k:1,c:"var(--mute)"};
+  return{i:"• ",l:e.type?.name||"Event",c:"var(--mute)"}}
+
+const links=p=>`<div class="links">Raw Sportmonks response: ${p.map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join("")}</div>`;
+function tabs(){return`<div class="tabs" role="group">${["match","lineups","table"].map(t=>`<button data-t="${t}" aria-pressed="${S.tab===t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join("")}</div><div id="view"></div>`}
+async function loadDetail(){
+  if(!S.sel)return;
+  if(!$("#view")||!$(".tabs")){$("#detail").innerHTML=tabs()}
+  document.querySelectorAll(".tabs button").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.t===S.tab);b.onclick=()=>{S.tab=b.dataset.t;setHash();loadDetail()}});
+  try{await({match:vMatch,lineups:vLineups,table:vTable}[S.tab]())}catch(e){$("#view").innerHTML=`<div class="err">Couldn’t load: ${esc(e.message)} <button onclick="loadDetail()">Reload</button></div>`}
+}
+async function vMatch(){
+  const{data:f}=await api("/api/fixture/"+S.sel),h=side(f,"home"),a=side(f,"away"),s=status(f);
+  const evs=(f.events||[]).slice().sort((x,y)=>x.minute-y.minute||x.sort_order-y.sort_order);
+  const ht=goals(f,"home","1ST_HALF");
+  const row=e=>{const x=ev(e),home=e.participant_id===h.id;
+    const c=`<div class="${home?"h":""}">${x.i}${esc(e.player_name||"")} <small>${x.l}${e.result?" · "+esc(e.result):""}${e.related_player_name?` · ${x.l==="Substitution"?"Off":"Assist"}: ${esc(e.related_player_name)}`:""}</small></div>`;
+    return`<div class="ev">${home?c:"<div></div>"}<div class="min">${e.minute}${e.extra_minute?"+"+e.extra_minute:""}'</div>${home?"<div></div>":c}</div>`};
+  const shown=S.key?evs.filter(e=>ev(e).k):evs,max=Math.max(95,...evs.map(e=>e.minute));
+  $("#view").innerHTML=`<div class="hero"><div class="t">${esc(h.name)}</div>
+    <div><div class="big">${goals(f,"home")??"–"} : ${goals(f,"away")??"–"}</div>
+    <div class="meta ${s.live?"live":""}" id="hmeta">${esc(f.state?.name||s.text)}${s.live&&s.text.includes("'")?" · "+esc(s.text):""}</div></div><div class="t">${esc(a.name)}</div></div>
+    <div class="meta" style="text-align:center;color:var(--mute);margin-top:6px">${esc(f.league?.name)}${ht!=null?` · Half-time ${ht}–${goals(f,"away","1ST_HALF")}`:""} · ${evs.length} events provided</div>
+    <div class="strip" aria-hidden="true">${evs.map(e=>`<i style="left:${e.minute/max*100}%;background:${ev(e).c}"></i>`).join("")}</div>
+    <div class="tabs"><button id="kk" aria-pressed="${S.key}">Key events</button><button id="ka" aria-pressed="${!S.key}">All events</button></div>
+    <div class="tl">${shown.length?shown.map(row).join(""):`<div class="empty">${evs.length?"No key events yet.":"Sportmonks returned no events for this match. This is normal before kick-off, and some leagues or plans don’t include events. Check the raw response below."}</div>`}</div>
+    <div class="stats" id="stats"></div>${links([["match",`/api/fixture/${S.sel}?raw=1`],["stats",`/api/fixture/${S.sel}/stats?raw=1`]])}`;
+  $("#kk").onclick=()=>{S.key=true;vMatch()};$("#ka").onclick=()=>{S.key=false;vMatch()};
+  S.season=f.season_id;S.teams=[h.id,a.id];
+  api(`/api/fixture/${S.sel}/stats`).then(({data})=>{
+    const by={};(data.statistics||[]).forEach(x=>{(by[x.type_id]||={n:x.type?.name,h:0,a:0})[x.location==="home"?"h":"a"]=+(x.data?.value)||0});
+    $("#stats").innerHTML=Object.values(by).slice(0,16).map(x=>{const t=x.h+x.a||1;
+      return`<div class="bar"><b>${x.h}</b><div class="tr"><span style="width:${x.h/t*50}%"></span><span style="width:${x.a/t*50}%"></span></div><b>${x.a}</b><div class="lb">${esc(x.n)}</div></div>`}).join("")||`<div class="empty">No team stats for this match.</div>`;
+  }).catch(()=>{$("#stats").innerHTML=`<div class="empty">Team stats unavailable.</div>`});
+}
+async function vLineups(){
+  $("#view").innerHTML=`<div class="empty">Loading lineups…</div>`;
+  const{data:f}=await api(`/api/fixture/${S.sel}/lineups`),h=side(f,"home"),a=side(f,"away"),L=f.lineups||[];
+  const team=(t,loc)=>{const ps=L.filter(p=>p.team_id===t.id),st=ps.filter(p=>p.type_id===11),fm=(f.formations||[]).find(x=>x.location===loc)?.formation,co=(f.coaches||[]).find(c=>c.meta?.participant_id===t.id);
+    return{t,st,bench:ps.filter(p=>p.type_id===12),fm,co,loc}};
+  const T=[team(h,"home"),team(a,"away")];
+  const dots=x=>{const rows={};x.st.forEach(p=>{const[r,c]=(p.formation_field||"").split(":").map(Number);if(r)(rows[r]||=[]).push({p,c})});
+    const mr=Math.max(...Object.keys(rows).map(Number),1);
+    return Object.entries(rows).flatMap(([r,arr])=>arr.sort((m,n)=>m.c-n.c).map((o,i)=>{const px=(r-.5)/mr*46,l=x.loc==="home"?px+2:98-px-2;
+      return`<span class="pl ${x.loc==="away"?"a":""}" style="left:${l}%;top:${(i+1)/(arr.length+1)*100}%" title="${esc(o.p.player_name)}">${o.p.jersey_number??""}</span>`}))};
+  $("#view").innerHTML=T.every(x=>!x.st.length)?`<div class="empty">Lineups aren’t available yet. They usually appear about an hour before kick-off. <button onclick="loadDetail()">Reload</button></div>`:
+    `<div class="pitch" role="img" aria-label="Approximate lineup layout">${T.flatMap(dots).join("")}</div>
+    <div class="legend">Layout is approximate, built from Sportmonks’ formation grid. Light = ${esc(h.name)}, dark = ${esc(a.name)}.</div>
+    <div class="two">${T.map(x=>`<div><h3>${esc(x.t.name)} ${x.fm?`· ${esc(x.fm)}`:""}</h3>${x.co?`<div class="tick">Manager: ${esc(x.co.name||x.co.common_name||"")}</div>`:""}
+      <ul>${x.st.map(p=>`<li>${p.jersey_number??""} ${esc(p.player_name)}</li>`).join("")}</ul><h3>Substitutes</h3>
+      <ul>${x.bench.map(p=>`<li>${p.jersey_number??""} ${esc(p.player_name)}</li>`).join("")}</ul></div>`).join("")}</div>
+    <button onclick="loadDetail()">Reload</button>${links([["lineups",`/api/fixture/${S.sel}/lineups?raw=1`]])}`;
+}
+async function vTable(){
+  if(!S.season){const{data}=await api("/api/fixture/"+S.sel);S.season=data.season_id;S.teams=[side(data,"home").id,side(data,"away").id]}
+  $("#view").innerHTML=`<div class="empty">Loading table…</div>`;
+  const{data}=await api("/api/standings/"+S.season),sc=S.scope;
+  const g=(r,k)=>{const d=(r.details||[]).find(d=>{const n=(d.type?.developer_name||"").toUpperCase();return n.includes(sc==="OVERALL"?"OVERALL":sc)&&k.test(n)});return+(d?.value)||0};
+  const rows=data.map(r=>{const w=g(r,/WON|WINS/),d=g(r,/DRAW/),l=g(r,/LOST|LOSS/),gf=g(r,/SCORED|FOR/),ga=g(r,/CONCEDED|AGAINST/);
+    return{r,p:w+d+l,w,d,l,gf,ga,pts:sc==="OVERALL"?r.points:w*3+d}});
+  rows.sort(sc==="OVERALL"?(x,y)=>x.r.position-y.r.position:(x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf);
+  const n=rows.length,zone=i=>i<4?"#1d6b46":i===4?"#2b6cb0":i>=n-3&&n>=18?"#d9302b":"transparent";
+  $("#view").innerHTML=`<div class="tabs">${["OVERALL","HOME","AWAY"].map(x=>`<button data-s="${x}" aria-pressed="${sc===x}">${x[0]+x.slice(1).toLowerCase()}</button>`).join("")}<button onclick="vTable()">Reload</button></div>
+    <div style="overflow-x:auto"><table><tr><th></th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th><th>Form</th></tr>
+    ${rows.map((x,i)=>{const fm=(x.r.form||[]).slice().sort((p,q)=>q.sort_order-p.sort_order).slice(0,5).reverse();
+      return`<tr class="${S.teams?.includes(x.r.participant_id)?"me":""}"><td class="z" style="background:${zone(i)}"></td><td>${i+1}. ${esc(x.r.participant?.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf-x.ga}</td><td>${x.pts}</td>
+      <td>${fm.map(m=>`<span class="f" style="background:${m.form==="W"?"#1d6b46":m.form==="L"?"#d9302b":"#8a958f"}">${esc(m.form)}</span>`).join("")}</td></tr>`}).join("")}</table></div>
+    <div class="legend"><span style="background:#1d6b46"></span>Top 4<span style="background:#2b6cb0"></span>5th<span style="background:#d9302b"></span>Bottom 3 · zones are approximate, your match teams are highlighted</div>${links([["standings",`/api/standings/${S.season}?raw=1`]])}`;
+  document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{S.scope=b.dataset.s;vTable()});
+}
+
+function reload(){S.left=S.poll;loadList();if(S.sel&&S.tab==="match")loadDetail()}
+function setMode(m){S.mode=m;$("#tLive").setAttribute("aria-pressed",m==="live");$("#tToday").setAttribute("aria-pressed",m==="today");reload()}
+$("#tLive").onclick=()=>setMode("live");$("#tToday").onclick=()=>setMode("today");
+$("#date").onchange=()=>{S.mode="date";$("#tLive").setAttribute("aria-pressed",false);$("#tToday").setAttribute("aria-pressed",false);reload()};
+$("#q").oninput=renderList;$("#eng").onchange=reload;$("#refresh").onclick=reload;
+$("#pause").onclick=()=>{S.paused=!S.paused;$("#pause").textContent=S.paused?"Resume":"Pause";$("#pause").setAttribute("aria-pressed",S.paused)};
+$("#date").value=new Date().toISOString().slice(0,10);
+setInterval(()=>{
+  document.querySelectorAll(".stat[data-s]").forEach(el=>{el.textContent=Math.floor((+el.dataset.s+(Date.now()-S.fx)/1000)/60)+"'"});   // ticking clock
+  if(S.paused||document.hidden){$("#tick").textContent=S.paused?"Paused":"";return}
+  $("#tick").textContent=`Refresh in ${S.left}s`;if(--S.left<0)reload();
+},1000);
+addEventListener("hashchange",()=>{readHash();renderList();loadDetail()});
+readHash();
+api("/api/config").then(c=>S.poll=S.left=c.poll).catch(()=>{}).finally(()=>{reload();if(S.sel)loadDetail()});
+</script>
+</body>
+</html>
